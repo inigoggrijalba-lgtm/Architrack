@@ -15,11 +15,12 @@ root.render(
 );
 
 // PWA Service Worker Registration
-// Usamos import.meta.env.BASE_URL para que funcione tanto en localhost como en /Architrack/
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Vite reemplaza import.meta.env.BASE_URL con '/Architrack/' en producción
-    const swUrl = `${(import.meta as any).env.BASE_URL}sw.js`;
+    // Usamos @ts-ignore para que TypeScript no se queje, pero permitimos que Vite haga el reemplazo
+    // @ts-ignore
+    const baseUrl = import.meta.env.BASE_URL;
+    const swUrl = `${baseUrl}sw.js`;
     
     navigator.serviceWorker.register(swUrl)
       .then((registration) => {
