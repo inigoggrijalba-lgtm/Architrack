@@ -1,8 +1,9 @@
-const CACHE_NAME = 'architrack-v3';
+const CACHE_NAME = 'architrack-v5-PURGE';
 const SUPABASE_URL = 'https://jphemhgubueqxkcahjqg.supabase.co';
-const BASE_PATH = '/Architrack';
+// Detectar si estamos en local o en GitHub Pages para ajustar el alcance
+const BASE_PATH = self.location.pathname.includes('/Architrack/') ? '/Architrack' : '';
 
-// Recursos críticos con la ruta base correcta para GitHub Pages
+// Recursos críticos
 const STATIC_URLS = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
@@ -12,12 +13,12 @@ const STATIC_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Forzar activación inmediata
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_URLS);
     })
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -26,25 +27,26 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('Borrando caché antigua:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  self.clients.claim();
+  self.clients.claim(); // Controlar clientes inmediatamente
 });
 
 self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(event.request.url);
 
-  // 1. Network Only para Supabase
+  // 1. Network Only para Supabase (Datos siempre frescos)
   if (requestUrl.href.includes(SUPABASE_URL)) {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // 2. Stale-While-Revalidate para CDNs
+  // 2. Stale-While-Revalidate para recursos externos (Fuentes, Tailwind)
   if (
     requestUrl.hostname.includes('cdn.tailwindcss.com') ||
     requestUrl.hostname.includes('fonts.googleapis.com') ||
@@ -64,7 +66,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Network First para todo lo demás
+  // 3. Network First para la App (Intentar red, si falla, usar caché)
   event.respondWith(
     fetch(event.request)
       .catch(() => {
