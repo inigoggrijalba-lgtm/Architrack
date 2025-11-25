@@ -1,7 +1,17 @@
-/// <reference types="vite/client" />
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+
+// Manually define ImportMetaEnv to fix TS errors when vite/client is missing
+declare global {
+  interface ImportMetaEnv {
+    readonly BASE_URL: string;
+  }
+  
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

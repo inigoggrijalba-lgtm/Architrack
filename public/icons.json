@@ -1,6 +1,4 @@
 {
-  "short_name": "ArchiTrack",
-  "name": "ArchiTrack - Control de Horas",
   "icons": [
     {
       "src": "windows11/SmallTile.scale-100.png",
@@ -450,10 +448,5 @@
       "src": "ios/1024.png",
       "sizes": "1024x1024"
     }
-  ],
-  "start_url": "/",
-  "display": "standalone",
-  "theme_color": "#0f172a",
-  "background_color": "#0f172a",
-  "orientation": "portrait"
+  ]
 }
